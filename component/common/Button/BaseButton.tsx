@@ -11,7 +11,7 @@ const BaseButton = memo(
                 type = 'button',
                 size = 'md',
                 variant = 'filled',
-                color = 'primary',
+                color,
                 leftIcon,
                 rightIcon,
                 isLoading,
