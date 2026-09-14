@@ -1,30 +1,13 @@
-"use client";
+'use client';
 
-import { useMemo, useState } from "react";
+import BaseButton from '@/component/common/Button/BaseButton';
 
-import BaseButton from "@/component/common/Button/BaseButton";
-import { createClient } from "@/lib/supabase/client";
+type SignInProps = {
+  isSigningIn: boolean;
+  onSignIn: () => void;
+};
 
-export default function SignIn() {
-  const supabase = useMemo(() => createClient(), []);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [isSigningIn, setIsSigningIn] = useState(false);
-
-  const signInWithKakao = async () => {
-    setErrorMessage(null);
-    setIsSigningIn(true);
-
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "kakao",
-      options: { redirectTo: `${window.location.origin}/api/auth/callback` }
-    });
-
-    if (error) {
-      setErrorMessage(error.message);
-      setIsSigningIn(false);
-    }
-  };
-
+export default function SignIn({ isSigningIn, onSignIn }: SignInProps) {
   return (
     <div className="space-y-6 rounded-surface border border-border bg-surface p-8 shadow-surface">
       <div>
@@ -33,16 +16,12 @@ export default function SignIn() {
           소중한 사람의 생일, 함께 축하하는 특별한 방법
         </p>
       </div>
-      {errorMessage && (
-        <p className="text-body-small text-error">{errorMessage}</p>
-      )}
       <BaseButton
-        className="w-full"
+        className="w-full bg-kakao text-kakao-content hover:bg-kakao-hover"
         size="lg"
         type="button"
-        color="kakao"
         isLoading={isSigningIn}
-        onClick={signInWithKakao}
+        onClick={onSignIn}
       >
         카카오로 시작하기
       </BaseButton>
