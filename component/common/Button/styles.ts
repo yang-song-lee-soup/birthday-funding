@@ -4,7 +4,6 @@ export const BASE_BUTTON_STYLES = `
   inline-flex
   items-center
   justify-center
-  rounded-control
   font-medium
   transition-colors
   duration-150
@@ -33,7 +32,6 @@ export const BUTTON_VARIANT_STYLES: Record<ButtonVariant, Record<ButtonColor, st
         icon: '',
         white: 'bg-surface text-content border border-border hover:bg-canvas',
         gray: 'bg-gray-800 text-on-primary hover:bg-gray-700',
-        kakao: 'bg-kakao text-kakao-content hover:bg-kakao-hover',
     },
     text: {
         primary: 'text-primary hover:bg-primary/10 active:bg-primary/20',
@@ -42,25 +40,22 @@ export const BUTTON_VARIANT_STYLES: Record<ButtonVariant, Record<ButtonColor, st
         icon: '',
         white: 'text-content hover:bg-content/10',
         gray: 'text-content-muted hover:bg-content/10',
-        kakao: 'text-kakao-content hover:bg-kakao/70',
     },
     icon: {
-        primary: '',
-        'primary-500': '',
-        'primary-400': '',
-        icon: '',
-        white: '',
-        gray: '',
-        kakao: '',
+        primary: 'text-primary hover:bg-primary/10',
+        'primary-500': 'text-primary-500 hover:bg-primary-500/10',
+        'primary-400': 'text-primary-400 hover:bg-primary-400/10',
+        icon: 'text-current hover:bg-content/10',
+        white: 'text-white hover:bg-black-100',
+        gray: 'text-content-muted hover:bg-content/10',
     },
     'icon-round': {
-        primary: '',
-        'primary-500': '',
-        'primary-400': '',
-        icon: '',
-        white: '',
-        gray: '',
-        kakao: '',
+        primary: 'text-primary hover:bg-primary/10',
+        'primary-500': 'text-primary-500 hover:bg-primary-500/10',
+        'primary-400': 'text-primary-400 hover:bg-primary-400/10',
+        icon: 'text-current hover:bg-content/10',
+        white: 'text-white hover:bg-black-100',
+        gray: 'text-content-muted hover:bg-content/10',
     },
 };
 
@@ -73,8 +68,9 @@ export function getButtonClassName({
 }: Pick<BaseButtonProps, 'size' | 'variant' | 'color' | 'isLoading' | 'className'>) {
     return [
         BASE_BUTTON_STYLES,
+        variant === 'icon-round' ? 'rounded-full' : 'rounded-control',
         BUTTON_SIZE_STYLES[size ?? 'md'],
-        BUTTON_VARIANT_STYLES[variant ?? 'filled'][color ?? 'primary'],
+        color === null ? '' : BUTTON_VARIANT_STYLES[variant ?? 'filled'][color ?? 'primary'],
         isLoading ? 'cursor-wait' : '',
         className,
     ]

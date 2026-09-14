@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { Geist, Geist_Mono } from "next/font/google";
 import Providers from "@/providers";
+import ToastMessageContainer from "@/component/common/ToastMessage/ToastMessageContainer";
 import { createServerClient } from "@/lib/supabase/server";
 import "./globals.css";
 
@@ -38,7 +39,10 @@ export default async function RootLayout({
     >
       <body className="min-h-dvh bg-canvas text-content">
         <div className="mx-auto flex min-h-dvh w-full max-w-app flex-col bg-surface md:shadow-surface">
-          <Providers accessToken={session?.access_token}>{children}</Providers>
+          <Providers accessToken={session?.access_token}>
+            {children}
+            <ToastMessageContainer />
+          </Providers>
         </div>
       </body>
     </html>
