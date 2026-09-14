@@ -10,7 +10,7 @@ type IconButtonProps = Omit<BaseButtonProps, 'leftIcon' | 'rightIcon' | 'childre
 };
 
 const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
-    ({ size = 'icon', variant = 'icon', color = 'gray', icon, label, ...props }, ref) => (
+    ({ size = 'icon', variant = 'icon', color, icon, label, ...props }, ref) => (
         <BaseButton {...props} ref={ref} size={size} variant={variant} color={color} aria-label={label}>
             <span aria-hidden="true" className="inline-flex">{icon}</span>
         </BaseButton>

@@ -5,8 +5,7 @@ export type ButtonColor = 'primary' | 'primary-500' | 'primary-400' | 'icon' | '
 export interface BaseButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
     size?: ButtonSize;
     variant?: ButtonVariant;
-    // null이면 기본 색상을 생략하고 호출부의 className으로 색상을 지정
-    color?: ButtonColor | null;
+    color?: ButtonColor;
     leftIcon?: React.ReactNode;
     rightIcon?: React.ReactNode;
     isLoading?: boolean;

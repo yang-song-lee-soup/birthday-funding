@@ -70,7 +70,7 @@ export function getButtonClassName({
         BASE_BUTTON_STYLES,
         variant === 'icon-round' ? 'rounded-full' : 'rounded-control',
         BUTTON_SIZE_STYLES[size ?? 'md'],
-        color === null ? '' : BUTTON_VARIANT_STYLES[variant ?? 'filled'][color ?? 'primary'],
+        color ? BUTTON_VARIANT_STYLES[variant ?? 'filled'][color] : '',
         isLoading ? 'cursor-wait' : '',
         className,
     ]
