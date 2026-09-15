@@ -1,2 +1,2 @@
-export { AppError } from "./app-error";
-export type { AppErrorOptions } from "./app-error";
+export { AppError, extractError } from "../app/app-error";
+export type { ErrorResponse, ServiceResult } from "../app/app-error";
