@@ -1,6 +1,5 @@
-import { productService } from "@/app/service/product/product.service";
 import type { Product } from "@/app/service/product/product.interface";
-import { AppError } from "@/lib/error";
+import { ProductService } from "@/app/service/product/product.service";
 import ProductList from "./_component/product-list";
 
 const CATEGORIES = [
@@ -9,12 +8,13 @@ const CATEGORIES = [
   "패션/잡화",
   "생활/주방",
   "뷰티/화장품",
-  "기타",
+  "기타"
 ] as const;
 
 export default async function ProductPage({
-  searchParams,
+  searchParams
 }: PageProps<"/product">) {
+  const productService = new ProductService();
   const params = await searchParams;
   const query = typeof params.query === "string" ? params.query : "";
   const selectedCategory =
@@ -23,16 +23,12 @@ export default async function ProductPage({
   let products: Product[] = [];
   let errorMessage = "";
 
-  if (query) {
-    try {
-      const result = await productService.getAll({ query, display: 12 });
-      products = result.items;
-    } catch (error) {
-      errorMessage =
-        error instanceof AppError
-          ? error.message
-          : "상품을 불러오지 못했습니다.";
-    }
+  const [res, err] = await productService.getAll({ query, display: 12 });
+
+  if (err) {
+    errorMessage = err.message;
+  } else {
+    products = res.items ?? [];
   }
 
   return (
