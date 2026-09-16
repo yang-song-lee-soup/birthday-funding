@@ -14,6 +14,10 @@ function getSafeNextUrl(next: string | null, requestUrl: string) {
   }
 }
 
+/**
+ * OAuth 복귀 요청에서 인증 코드를 세션으로 교환하고 안전한 내부 경로로 이동시킨다.
+ * 취소·실패는 로그인 URL의 error 값으로 전달하며 안내 표시는 로그인 화면이 담당한다.
+ */
 export async function GET(request: NextRequest) {
   const code = request.nextUrl.searchParams.get("code");
   const next = getSafeNextUrl(request.nextUrl.searchParams.get("next"), request.url);
