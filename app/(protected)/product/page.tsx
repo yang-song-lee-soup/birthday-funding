@@ -1,79 +1,64 @@
+"use client";
+
 import ProductList from "./_component/product-list";
 import { ProductService } from "./product.service";
 import { ProductBffAPI } from "@/service/product/product.bff";
+import BaseButton from "@/component/common/Button/BaseButton";
+import { CATEGORIES } from "@/constants/categories";
+import { useToastMessageContext } from "@/providers/ToastMessageProvider";
+import { useEffect, useState } from "react";
+import { ProductListType } from "@/service/product/product.interface";
 
-const CATEGORIES = [
-  "전체",
-  "전자기기",
-  "패션/잡화",
-  "생활/주방",
-  "뷰티/화장품",
-  "기타"
-] as const;
-
-export default async function ProductPage({
-  searchParams
-}: PageProps<"/product">) {
+export default function ProductPage({ searchParams }: PageProps<"/product">) {
   const productService = new ProductService(new ProductBffAPI());
-  const params = await searchParams;
-  const query = typeof params.query === "string" ? params.query : "";
-  const selectedCategory =
-    typeof params.category === "string" ? params.category : "전체";
+  const [products, setProducts] = useState({} as ProductListType);
+  const { showToastMessage } = useToastMessageContext();
 
-  let errorMessage = "";
+  useEffect(() => {
+    const getProducts = async () => {
+      const [products, error] = await productService.getProducts();
+      if (error) {
+        showToastMessage({ type: "error", message: error.message });
+        return;
+      }
+      setProducts(products);
+    };
+    getProducts();
+  }, []);
 
-  const [res, err] = await productService.getProducts();
-
-  if (err) {
-    errorMessage = err.message;
-  }
+  console.log(products);
 
   return (
-    <section className="px-4 py-8">
+    <section className="px-8 py-16">
       <div className="flex justify-between items-center gap-4">
-        <h1 className="text-2xl font-bold">상품 관리</h1>
+        <h1 className="text-5xl font-bold">상품 관리</h1>
         <form action="/product" className="flex items-center gap-2">
           <input
             type="search"
             name="query"
-            defaultValue={query}
             placeholder="상품명을 검색하세요"
-            className="border border-gray-300 rounded-md px-3 py-1 text-sm"
+            className="border border-gray-300 rounded-xl p-4 text-2xl"
           />
-          <button type="submit" className="bg-yellow-300 px-4 py-1 rounded-md">
-            <span className="text-sm font-bold">상품 검색</span>
-          </button>
+          <BaseButton size="lg" color="primary-500" type="submit">
+            상품 검색
+          </BaseButton>
         </form>
       </div>
       <div className="h-px bg-gray-300 my-4"></div>
       <div className="flex gap-2">
-        {CATEGORIES.map((category) => {
+        {/* {CATEGORIES.map((category) => {
           const isActive = selectedCategory === category;
-          const href =
-            category === "전체"
-              ? query
-                ? `/product?query=${encodeURIComponent(query)}`
-                : "/product"
-              : `/product?query=${encodeURIComponent(category)}&category=${encodeURIComponent(category)}`;
-
           return (
-            <a
+            <span
               key={category}
-              href={href}
-              className={`${isActive ? "bg-yellow-100" : "bg-gray-100"} px-4 py-1 rounded-2xl border border-gray-300`}
+              className={`text-2xl ${isActive ? "font-bold" : ""}`}
             >
-              <span className={`text-sm ${isActive ? "font-bold" : ""}`}>
-                {category}
-              </span>
-            </a>
+              {category}
+            </span>
           );
-        })}
+        })} */}
       </div>
-      {errorMessage ? (
-        <p className="mt-8 text-sm text-red-500">{errorMessage}</p>
-      ) : (
-        <ProductList products={res?.products ?? []} />
-      )}
+      <ProductList products={[]} />
     </section>
   );
 }
