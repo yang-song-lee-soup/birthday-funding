@@ -24,7 +24,7 @@ vi.mock('next/navigation', () => ({
 import LoginPage from '@/app/(auth)/login/page';
 import ProtectedLayout from '@/app/(protected)/layout';
 import AuthLayout from '@/app/(auth)/layout';
-import UserPage from '@/app/(protected)/user/page';
+import ProtectedHeader from '@/app/(protected)/_component/layout/Header/ProtectedHeader';
 import AuthProvider, { useAuthContext } from '@/providers/AuthProvider';
 import AuthBoundary from '@/app/(protected)/_component/AuthBoundary';
 import { ToastMessageProvider } from '@/providers/ToastMessageProvider';
@@ -149,7 +149,7 @@ describe('인증 화면과 접근 제어', () => {
             mocks.onAuthStateChange.mock.calls.at(-1)![0]('SIGNED_OUT', null);
             return { error: null };
         });
-        await act(async () => renderScreen(<AuthBoundary><UserPage /></AuthBoundary>));
+        await act(async () => renderScreen(<AuthBoundary><ProtectedHeader /></AuthBoundary>));
         await act(async () => host.querySelector('button')!.click());
         expect(mocks.replace).toHaveBeenCalledExactlyOnceWith('/login');
         expect(host.querySelector('[role="status"]')?.textContent).toContain('로그아웃 되었습니다.');
@@ -196,7 +196,7 @@ describe('인증 화면과 접근 제어', () => {
             handler('INITIAL_SESSION', { user: { id: 'user', user_metadata: {} } });
             return { data: { subscription: { unsubscribe: vi.fn() } } };
         });
-        await act(async () => renderScreen(<UserPage />));
+        await act(async () => renderScreen(<ProtectedHeader />));
         expect(mocks.replace).not.toHaveBeenCalled();
         window.history.replaceState(null, '', '/login');
         await act(async () => renderScreen(<LoginPage />));
@@ -281,7 +281,7 @@ describe('인증 화면과 접근 제어', () => {
 
     it('로그아웃에 성공하면 로그인 화면으로 이동하고 세션을 갱신한다', async () => {
         mocks.signOut.mockResolvedValue({ error: null });
-        await act(async () => renderScreen(<UserPage />));
+        await act(async () => renderScreen(<ProtectedHeader />));
         await act(async () => host.querySelector('button')!.click());
         expect(mocks.replace).toHaveBeenCalledWith('/login');
         expect(mocks.refresh).toHaveBeenCalled();
@@ -296,7 +296,7 @@ describe('인증 화면과 접근 제어', () => {
 
     it('로그아웃에 실패하면 현재 화면에서 재시도를 허용한다', async () => {
         mocks.signOut.mockRejectedValue(new Error('network'));
-        await act(async () => renderScreen(<UserPage />));
+        await act(async () => renderScreen(<ProtectedHeader />));
         await act(async () => host.querySelector('button')!.click());
         expect(mocks.replace).not.toHaveBeenCalled();
         expect(host.querySelector('[role="alert"]')?.textContent).toContain('로그아웃에 실패했습니다');
