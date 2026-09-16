@@ -1,6 +1,7 @@
 import { HttpClient } from "./client";
 import { CreateHttpClientConfig } from "./interface";
-export { HttpService } from "./interface";
+import { getServiceOrigin } from "./service";
+export { HttpService, getServiceOrigin } from "./service";
 export type { HttpRequest } from "./request";
 export type {
   CreateHttpClientConfig,
@@ -23,5 +24,5 @@ export function HttpFetch({ service, headers }: CreateHttpClientConfig) {
     });
   }
 
-  return new HttpClient(service, defaultHeaders);
+  return new HttpClient(getServiceOrigin(service), defaultHeaders);
 }
