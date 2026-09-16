@@ -1,17 +1,32 @@
-import { AppError, type ErrorResponse } from "../app/app-error";
+import { AppError } from "../app/app-error";
 
 export async function catchError(response: Response) {
   if (response.ok) {
     return;
   }
 
-  const data = (await response.json().catch(() => ({}))) as Partial<ErrorResponse>;
+  if (response.status === 401) {
+    throw new AppError({
+      service: "http",
+      error: "UNAUTHORIZED",
+      status: 401,
+      message: "Authentication required"
+    });
+  }
+
+  if (response.status === 403) {
+    throw new AppError({
+      service: "http",
+      error: "FORBIDDEN",
+      status: 403,
+      message: "Access denied"
+    });
+  }
 
   throw new AppError({
-    service: data.service ?? "http",
-    error: data.error ?? "HTTP_ERROR",
+    service: "http",
+    error: "HTTP_ERROR",
     status: response.status,
-    message: data.message ?? response.statusText ?? "Request failed",
+    message: response.statusText || "Request failed"
   });
 }
-

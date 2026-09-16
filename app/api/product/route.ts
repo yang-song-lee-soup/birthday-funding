@@ -1,16 +1,14 @@
-import { extractError } from "@/lib/app/app-error";
+import { toResult } from "@/lib/app/app-result";
 import { ProductExternalAPI } from "@/service/product/product.external";
 import type { NextRequest } from "next/server";
 
 export async function GET(_request: NextRequest) {
-  try {
-    const client = new ProductExternalAPI();
-    const data = await client.getAll();
+  const client = new ProductExternalAPI();
+  const [data, error] = await toResult(client.getAll());
 
-    return Response.json({ data });
-  } catch (e) {
-    const error = extractError(e);
-
-    return Response.json({ error }, { status: error.status });
+  if (error) {
+    return Response.json(error, { status: error.status });
   }
+
+  return Response.json({ data }, { status: 200 });
 }
