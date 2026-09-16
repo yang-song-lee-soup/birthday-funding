@@ -1,10 +1,20 @@
-import { ProductListResponse } from "@/app/service/product/product.interface";
-import { HttpFetch, HttpService } from "@/lib/http";
+import { HttpFetch, HttpService, type HttpClientInterface } from "@/lib/http";
+import type { ProductListDto } from "./product.dto";
+import type { ProductList } from "./product.interface";
+import { toProductList } from "./product.mapper";
 
 export class ProductExternalAPI {
-  private readonly http = HttpFetch({ service: HttpService.PRODUCT });
+  constructor(
+    private readonly httpClient: HttpClientInterface = HttpFetch({
+      service: HttpService.PRODUCT
+    })
+  ) {}
 
-  list() {
-    return this.http.get<ProductListResponse>("/products").request();
+  async list(): Promise<ProductList> {
+    const dto = await this.httpClient
+      .get<ProductListDto>("/products")
+      .request();
+
+    return toProductList(dto);
   }
 }

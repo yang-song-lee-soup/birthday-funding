@@ -4,6 +4,11 @@ export type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
 export type HttpQuery = Record<string, string | number | boolean | undefined>;
 
+export type HttpHeadersProvider = () =>
+  | HeadersInit
+  | undefined
+  | Promise<HeadersInit | undefined>;
+
 export type HttpRequestOptions = Pick<
   RequestInit,
   "headers" | "cache" | "signal"
@@ -18,6 +23,7 @@ export type HttpRequestOptions = Pick<
 export type HttpRequestConfig = {
   baseUrl: string;
   headers?: HeadersInit;
+  getHeaders?: HttpHeadersProvider;
   method: HttpMethod;
   path: string;
   body?: unknown;
@@ -51,4 +57,5 @@ export interface HttpClientInterface {
 export type CreateHttpClientConfig = {
   service: HttpService;
   headers?: HeadersInit;
+  getHeaders?: HttpHeadersProvider;
 };

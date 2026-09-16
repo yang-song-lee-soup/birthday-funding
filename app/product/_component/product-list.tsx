@@ -1,4 +1,4 @@
-import type { Product } from "@/app/service/product/product.interface";
+import type { Product } from "@/service/product/product.interface";
 import ProductItem from "./product-item";
 
 export default function ProductList({ products }: { products: Product[] }) {

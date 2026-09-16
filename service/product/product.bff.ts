@@ -1,10 +1,17 @@
-import { ProductListResponse } from "@/app/service/product/product.interface";
-import { AppService } from "@/lib/app/app-service";
+import { createAppHttpClient } from "@/lib/app/app-http-client";
+import type { HttpClientInterface } from "@/lib/http";
+import type { ProductList } from "./product.interface";
 
-export class ProductAPI extends AppService {
-  protected async getAll() {
-    return await this.httpClient
-      .get<ProductListResponse>("/api/product")
+export class ProductAPI {
+  constructor(
+    private readonly httpClient: HttpClientInterface = createAppHttpClient()
+  ) {}
+
+  async getAll(): Promise<ProductList> {
+    const { data } = await this.httpClient
+      .get<{ data: ProductList }>("/api/product")
       .request();
+
+    return data;
   }
 }

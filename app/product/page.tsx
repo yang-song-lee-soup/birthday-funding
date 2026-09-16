@@ -1,6 +1,5 @@
-import type { Product } from "@/app/service/product/product.interface";
-import { ProductService } from "@/app/service/product/product.service";
 import ProductList from "./_component/product-list";
+import { ProductService } from "./product.service";
 
 const CATEGORIES = [
   "전체",

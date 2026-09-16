@@ -6,6 +6,7 @@ export type { HttpRequest } from "./request";
 export type {
   CreateHttpClientConfig,
   HttpClientInterface,
+  HttpHeadersProvider,
   HttpMethod,
   HttpQuery,
   HttpRequestBuilder,
@@ -13,7 +14,11 @@ export type {
   HttpRequestOptions
 } from "./interface";
 
-export function HttpFetch({ service, headers }: CreateHttpClientConfig) {
+export function HttpFetch({
+  service,
+  headers,
+  getHeaders
+}: CreateHttpClientConfig) {
   const defaultHeaders = new Headers({
     "Content-Type": "application/json"
   });
@@ -24,5 +29,5 @@ export function HttpFetch({ service, headers }: CreateHttpClientConfig) {
     });
   }
 
-  return new HttpClient(getServiceOrigin(service), defaultHeaders);
+  return new HttpClient(getServiceOrigin(service), defaultHeaders, getHeaders);
 }

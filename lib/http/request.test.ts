@@ -101,6 +101,50 @@ describe("HTTP 요청", () => {
     expect(headers.get("X-Request-Id")).toBe("abc");
   });
 
+  it("본문이 없는 응답은 undefined를 반환한다", async () => {
+    fetchMock.mockResolvedValue(new Response(null, { status: 204 }));
+    const client = HttpFetch({ service: HttpService.APP });
+
+    await expect(client.delete("/items/1").request()).resolves.toBeUndefined();
+  });
+
+  it("요청마다 getHeaders를 다시 평가한다", async () => {
+    const getHeaders = vi
+      .fn()
+      .mockResolvedValueOnce({ Cookie: "sid=1" })
+      .mockResolvedValueOnce({ Cookie: "sid=2" });
+    fetchMock.mockImplementation(() => jsonResponse({}));
+    const client = HttpFetch({ service: HttpService.APP, getHeaders });
+
+    await client.get("/me").request();
+    await client.get("/me").request();
+
+    const cookies = fetchMock.mock.calls.map((call) =>
+      new Headers((call[1] as RequestInit).headers).get("Cookie")
+    );
+    expect(getHeaders).toHaveBeenCalledTimes(2);
+    expect(cookies).toEqual(["sid=1", "sid=2"]);
+  });
+
+  it("요청 헤더가 getHeaders보다 우선한다", async () => {
+    fetchMock.mockResolvedValue(jsonResponse({}));
+    const client = HttpFetch({
+      service: HttpService.APP,
+      headers: { Authorization: "Bearer default" },
+      getHeaders: () => ({ Authorization: "Bearer session" })
+    });
+
+    await client
+      .get("/me", { headers: { Authorization: "Bearer request" } })
+      .request();
+
+    const headers = new Headers(
+      (fetchMock.mock.calls[0][1] as RequestInit).headers
+    );
+    expect(headers.get("Authorization")).toBe("Bearer request");
+    expect(headers.get("Content-Type")).toBe("application/json");
+  });
+
   it("실패 응답은 AppError로 던진다", async () => {
     fetchMock.mockImplementation(() =>
       jsonResponse(

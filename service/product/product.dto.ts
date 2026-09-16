@@ -1,16 +1,10 @@
-export type ProductSearchParams = {
-  query?: string;
-  limit?: number;
-  skip?: number;
-};
-
-export type ProductDimensions = {
+export type ProductDimensionsDto = {
   width: number;
   height: number;
   depth: number;
 };
 
-export type ProductReview = {
+export type ProductReviewDto = {
   rating: number;
   comment: string;
   date: string;
@@ -18,14 +12,14 @@ export type ProductReview = {
   reviewerEmail: string;
 };
 
-export type ProductMeta = {
+export type ProductMetaDto = {
   createdAt: string;
   updatedAt: string;
   barcode: string;
   qrCode: string;
 };
 
-export type Product = {
+export type ProductDto = {
   id: number;
   title: string;
   description: string;
@@ -38,20 +32,20 @@ export type Product = {
   brand?: string;
   sku: string;
   weight: number;
-  dimensions: ProductDimensions;
+  dimensions: ProductDimensionsDto;
   warrantyInformation: string;
   shippingInformation: string;
   availabilityStatus: string;
-  reviews: ProductReview[];
+  reviews: ProductReviewDto[];
   returnPolicy: string;
   minimumOrderQuantity: number;
-  meta: ProductMeta;
+  meta: ProductMetaDto;
   thumbnail: string;
   images: string[];
 };
 
-export type ProductListResponse = {
-  products: Product[];
+export type ProductListDto = {
+  products: ProductDto[];
   total: number;
   skip: number;
   limit: number;

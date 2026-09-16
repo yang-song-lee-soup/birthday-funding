@@ -22,8 +22,29 @@ describe("상품 API", () => {
     vi.unstubAllGlobals();
   });
 
-  it("외부 API 응답을 data로 감싸 반환한다", async () => {
-    fetchMock.mockResolvedValue(jsonResponse({ id: 1231, title: "post" }));
+  it("외부 API 응답을 도메인 모델로 바꿔 data로 감싸 반환한다", async () => {
+    fetchMock.mockResolvedValue(
+      jsonResponse({
+        products: [
+          {
+            id: 1,
+            title: "Essence Mascara Lash Princess",
+            description: "볼륨과 길이를 살려주는 마스카라",
+            category: "beauty",
+            brand: "Essence",
+            price: 9.99,
+            rating: 4.94,
+            stock: 5,
+            thumbnail: "https://example.com/mascara.png",
+            sku: "RCH45Q1A",
+            minimumOrderQuantity: 24
+          }
+        ],
+        total: 194,
+        skip: 0,
+        limit: 30
+      })
+    );
 
     const response = await GET(
       new NextRequest("https://app.example/api/product")
@@ -33,7 +54,26 @@ describe("상품 API", () => {
     const url = fetchMock.mock.calls[0][0] as URL;
     expect(url.href).toBe("https://dummyjson.com/products");
     expect(response.status).toBe(200);
-    expect(body).toEqual({ data: { id: 1231, title: "post" } });
+    expect(body).toEqual({
+      data: {
+        products: [
+          {
+            id: 1,
+            title: "Essence Mascara Lash Princess",
+            description: "볼륨과 길이를 살려주는 마스카라",
+            category: "beauty",
+            brand: "Essence",
+            price: 9.99,
+            rating: 4.94,
+            stock: 5,
+            thumbnail: "https://example.com/mascara.png"
+          }
+        ],
+        total: 194,
+        skip: 0,
+        limit: 30
+      }
+    });
   });
 
   it("외부 API 실패를 error JSON과 상태 코드로 반환한다", async () => {

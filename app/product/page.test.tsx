@@ -3,25 +3,31 @@ import { act } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-const { getAll } = vi.hoisted(() => ({ getAll: vi.fn() }));
-vi.mock("@/app/service/product/product.service", () => ({
+const { getProducts } = vi.hoisted(() => ({ getProducts: vi.fn() }));
+vi.mock("./product.service", () => ({
   ProductService: class {
-    getAll = getAll;
+    getProducts = getProducts;
   }
 }));
 
 import ProductPage from "./page";
-import type { Product } from "@/app/service/product/product.interface";
+import type { Product, ProductList } from "@/service/product/product.interface";
 
 const product: Product = {
-  id: "1",
-  title: "생일 케이크",
-  image: "https://example.com/cake.png",
-  price: 20000,
-  mallName: "네이버",
-  category: "식품",
-  link: "https://example.com/cake"
+  id: 1,
+  title: "Essence Mascara Lash Princess",
+  description: "볼륨과 길이를 살려주는 마스카라",
+  category: "beauty",
+  brand: "Essence",
+  price: 9.99,
+  rating: 4.94,
+  stock: 5,
+  thumbnail: "https://example.com/mascara.png"
 };
+
+function listResponse(products: Product[]): ProductList {
+  return { products, total: products.length, skip: 0, limit: 30 };
+}
 
 async function renderPage(searchParams: Record<string, string> = {}) {
   const ui = await ProductPage({
@@ -33,7 +39,7 @@ async function renderPage(searchParams: Record<string, string> = {}) {
 let host: HTMLDivElement;
 let root: Root;
 beforeEach(() => {
-  getAll.mockReset();
+  getProducts.mockReset();
   Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true });
   host = document.createElement("div");
   document.body.append(host);
@@ -45,49 +51,46 @@ afterEach(async () => {
 });
 
 describe("상품 페이지", () => {
-  it("검색어가 없으면 안내 문구를 보여준다", async () => {
-    getAll.mockResolvedValue([{ items: [] }, null]);
+  it("조회한 상품을 목록으로 보여준다", async () => {
+    getProducts.mockResolvedValue([listResponse([product]), null]);
     await renderPage();
 
-    expect(getAll).toHaveBeenCalledWith({ query: "", display: 12 });
-    expect(host.textContent).toContain(
-      "검색어를 입력해 네이버 쇼핑 상품을 찾아보세요."
-    );
-  });
-
-  it("검색 결과를 목록으로 보여준다", async () => {
-    getAll.mockResolvedValue([{ items: [product] }, null]);
-    await renderPage({ query: "케이크" });
-
-    expect(host.querySelector("input")?.defaultValue).toBe("케이크");
-    expect(host.textContent).toContain("생일 케이크");
-    expect(host.textContent).toContain("20,000원");
+    expect(host.textContent).toContain("Essence Mascara Lash Princess");
+    expect(host.textContent).toContain("$9.99");
+    expect(host.textContent).toContain("Essence");
     expect(
-      host.querySelector('a[href="https://example.com/cake"]')
+      host.querySelector('img[src="https://example.com/mascara.png"]')
     ).not.toBeNull();
   });
 
-  it("검색 결과가 없으면 빈 목록 안내를 보여준다", async () => {
-    getAll.mockResolvedValue([{ items: [] }, null]);
-    await renderPage({ query: "없는상품" });
+  it("상품이 없으면 빈 목록 안내를 보여준다", async () => {
+    getProducts.mockResolvedValue([listResponse([]), null]);
+    await renderPage();
 
     expect(host.textContent).toContain("검색된 상품이 없습니다.");
   });
 
   it("서비스 오류 메시지를 표시한다", async () => {
-    getAll.mockResolvedValue([
+    getProducts.mockResolvedValue([
       null,
-      { message: "네이버 쇼핑 조회에 실패했습니다." }
+      { message: "상품 조회에 실패했습니다." }
     ]);
-    await renderPage({ query: "케이크" });
+    await renderPage();
 
     const error = host.querySelector("p.text-red-500");
-    expect(error?.textContent).toBe("네이버 쇼핑 조회에 실패했습니다.");
-    expect(host.textContent).not.toContain("생일 케이크");
+    expect(error?.textContent).toBe("상품 조회에 실패했습니다.");
+    expect(host.textContent).not.toContain("Essence Mascara Lash Princess");
+  });
+
+  it("검색어를 입력창에 유지한다", async () => {
+    getProducts.mockResolvedValue([listResponse([]), null]);
+    await renderPage({ query: "마스카라" });
+
+    expect(host.querySelector("input")?.defaultValue).toBe("마스카라");
   });
 
   it("선택한 카테고리 링크를 활성화한다", async () => {
-    getAll.mockResolvedValue([{ items: [] }, null]);
+    getProducts.mockResolvedValue([listResponse([]), null]);
     await renderPage({ query: "전자기기", category: "전자기기" });
 
     const active = [...host.querySelectorAll("a")].find((el) =>
