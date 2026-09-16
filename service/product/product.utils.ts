@@ -1,5 +1,4 @@
-import type { ProductDto, ProductListDto } from "./product.dto";
-import type { Product, ProductList } from "./product.interface";
+import type { Product, ProductDto, ProductList, ProductListDto } from "./product.interface";
 
 export function toProduct(dto: ProductDto): Product {
   return {

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import type { ProductDto } from "./product.dto";
-import { toProduct, toProductList } from "./product.mapper";
+import { toProduct, toProductList } from "./product.utils";
+import { ProductDto } from "./product.interface";
 
 const dto: ProductDto = {
   id: 1,
