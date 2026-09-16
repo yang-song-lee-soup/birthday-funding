@@ -1,8 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
-import type { ProductList } from "@/service/product/product.interface";
+import type { ProductListType } from "@/service/product/product.interface";
 import { ProductService } from "./product.service";
 
-const result: ProductList = {
+const result: ProductListType = {
   products: [],
   total: 0,
   skip: 0,

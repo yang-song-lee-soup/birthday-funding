@@ -16,7 +16,7 @@ export type Product = {
   thumbnail: string;
 };
 
-export type ProductList = {
+export type ProductListType = {
   products: Product[];
   total: number;
   skip: number;

@@ -1,15 +1,15 @@
 import { createAppHttpClient } from "@/lib/app/app-http-client";
 import type { HttpClientInterface } from "@/lib/http";
-import type { ProductList } from "./product.interface";
+import type { ProductListType } from "./product.interface";
 
 export class ProductBffAPI {
   constructor(
     private readonly httpClient: HttpClientInterface = createAppHttpClient()
   ) {}
 
-  async getAll(): Promise<ProductList> {
+  async getAll(): Promise<ProductListType> {
     const { data } = await this.httpClient
-      .get<{ data: ProductList }>("/api/product")
+      .get<{ data: ProductListType }>("/api/product")
       .request();
 
     return data;

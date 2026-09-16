@@ -1,10 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ProductBffAPI } from "./product.bff";
-import type { ProductList } from "./product.interface";
+import type { ProductListType } from "./product.interface";
 
 describe("상품 BFF API", () => {
   const fetchMock = vi.fn();
-  const list: ProductList = { products: [], total: 0, skip: 0, limit: 30 };
+  const list: ProductListType = { products: [], total: 0, skip: 0, limit: 30 };
 
   beforeEach(() => {
     fetchMock.mockReset();

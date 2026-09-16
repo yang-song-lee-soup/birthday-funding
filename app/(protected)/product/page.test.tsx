@@ -11,7 +11,7 @@ vi.mock("./product.service", () => ({
 }));
 
 import ProductPage from "./page";
-import type { Product, ProductList } from "@/service/product/product.interface";
+import type { Product, ProductListType } from "@/service/product/product.interface";
 
 const product: Product = {
   id: 1,
@@ -25,7 +25,7 @@ const product: Product = {
   thumbnail: "https://example.com/mascara.png"
 };
 
-function listResponse(products: Product[]): ProductList {
+function listResponse(products: Product[]): ProductListType {
   return { products, total: products.length, skip: 0, limit: 30 };
 }
 
