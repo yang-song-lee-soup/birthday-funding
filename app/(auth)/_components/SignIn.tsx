@@ -3,11 +3,11 @@
 import BaseButton from '@/component/common/Button/BaseButton';
 
 type SignInProps = {
-  isSigningIn: boolean;
+  isLoading: boolean;
   onSignIn: () => void;
 };
 
-export default function SignIn({ isSigningIn, onSignIn }: SignInProps) {
+export default function SignIn({ isLoading, onSignIn }: SignInProps) {
   return (
     <div className="space-y-6 rounded-surface border border-border bg-surface p-8 shadow-surface">
       <div>
@@ -20,7 +20,7 @@ export default function SignIn({ isSigningIn, onSignIn }: SignInProps) {
         className="w-full bg-kakao text-kakao-content hover:bg-kakao-hover"
         size="lg"
         type="button"
-        isLoading={isSigningIn}
+        isLoading={isLoading}
         onClick={onSignIn}
       >
         카카오로 시작하기
