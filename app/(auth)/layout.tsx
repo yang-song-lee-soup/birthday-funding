@@ -1,12 +1,10 @@
 import { redirect } from "next/navigation";
 
-import { createServerClient } from "@/lib/supabase/server";
+import { getRequestUser } from "@/app/service/auth/server/auth.service";
 
+/** 로그인 화면의 서버 진입 정책: 이미 인증된 요청자는 홈으로 이동시킨다. */
 export default async function AuthLayout({ children }: { children: React.ReactNode }) {
-    const supabase = await createServerClient();
-    const {
-        data: { user },
-    } = await supabase.auth.getUser();
+    const user = await getRequestUser();
 
     if (user) {
         redirect("/");
