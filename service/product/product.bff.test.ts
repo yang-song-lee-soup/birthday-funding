@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { ProductAPI } from "./product.bff";
+import { ProductBffAPI } from "./product.bff";
 import type { ProductList } from "./product.interface";
 
 describe("상품 BFF API", () => {
@@ -23,7 +23,7 @@ describe("상품 BFF API", () => {
       })
     );
 
-    const data = await new ProductAPI().getAll();
+    const data = await new ProductBffAPI().getAll();
 
     const url = fetchMock.mock.calls[0][0] as URL;
     expect(url.href).toBe("http://localhost:3000/api/product");

@@ -2,7 +2,7 @@ import { createAppHttpClient } from "@/lib/app/app-http-client";
 import type { HttpClientInterface } from "@/lib/http";
 import type { ProductList } from "./product.interface";
 
-export class ProductAPI {
+export class ProductBffAPI {
   constructor(
     private readonly httpClient: HttpClientInterface = createAppHttpClient()
   ) {}
