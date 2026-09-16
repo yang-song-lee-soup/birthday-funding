@@ -22,3 +22,4 @@ export type ProductList = {
   skip: number;
   limit: number;
 };
+

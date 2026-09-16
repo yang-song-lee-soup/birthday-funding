@@ -1,3 +1,4 @@
+import { ProductExternalAPI } from "@/service/product/product.external";
 import ProductList from "./_component/product-list";
 import { ProductService } from "./product.service";
 
@@ -13,7 +14,7 @@ const CATEGORIES = [
 export default async function ProductPage({
   searchParams
 }: PageProps<"/product">) {
-  const productService = new ProductService();
+  const productService = new ProductService(new ProductExternalAPI());
   const params = await searchParams;
   const query = typeof params.query === "string" ? params.query : "";
   const selectedCategory =

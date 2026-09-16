@@ -10,7 +10,7 @@ export class ProductExternalAPI {
     })
   ) {}
 
-  async list(): Promise<ProductList> {
+  async getAll(): Promise<ProductList> {
     const dto = await this.httpClient
       .get<ProductListDto>("/products")
       .request();
