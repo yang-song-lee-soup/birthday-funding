@@ -1,3 +1,5 @@
+import type { HttpService } from "./service";
+
 export type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
 export type HttpQuery = Record<string, string | number | boolean | undefined>;
@@ -50,9 +52,3 @@ export type CreateHttpClientConfig = {
   service: HttpService;
   headers?: HeadersInit;
 };
-
-export enum HttpService {
-  BASE = "http://localhost:3000",
-  KAKAO = "",
-  TEST = "https://jsonplaceholder.typicode.com"
-}

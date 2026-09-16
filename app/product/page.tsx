@@ -20,15 +20,12 @@ export default async function ProductPage({
   const selectedCategory =
     typeof params.category === "string" ? params.category : "전체";
 
-  let products: Product[] = [];
   let errorMessage = "";
 
-  const [res, err] = await productService.getAll({ query, display: 12 });
+  const [res, err] = await productService.getProducts();
 
   if (err) {
     errorMessage = err.message;
-  } else {
-    products = res.items ?? [];
   }
 
   return (
@@ -74,12 +71,8 @@ export default async function ProductPage({
       </div>
       {errorMessage ? (
         <p className="mt-8 text-sm text-red-500">{errorMessage}</p>
-      ) : query ? (
-        <ProductList products={products} />
       ) : (
-        <p className="mt-8 text-sm text-gray-500">
-          검색어를 입력해 네이버 쇼핑 상품을 찾아보세요.
-        </p>
+        <ProductList products={res?.products ?? []} />
       )}
     </section>
   );

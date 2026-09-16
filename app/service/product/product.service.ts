@@ -1,25 +1,11 @@
 import { extractError, type ServiceResult } from "@/lib/app/app-error";
-import { AppService } from "@/lib/app/app-service";
-import type {
-  ProductSearchParams,
-  ProductSearchResult
-} from "./product.interface";
+import { ProductAPI } from "@/service/product/product.bff";
+import { ProductListResponse } from "./product.interface";
 
-export class ProductService extends AppService {
-  async getAll(
-    params: ProductSearchParams
-  ): Promise<ServiceResult<ProductSearchResult>> {
+export class ProductService extends ProductAPI {
+  async getProducts(): Promise<ServiceResult<ProductListResponse>> {
     try {
-      const res = await this.httpClient
-        .get<ProductSearchResult>("/api/product", {
-          query: {
-            query: params.query,
-            display: params.display,
-            start: params.start,
-            sort: params.sort
-          }
-        })
-        .request();
+      const res = await this.getAll();
 
       return [res, null];
     } catch (e) {

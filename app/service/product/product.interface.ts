@@ -1,55 +1,58 @@
-export type ProductSort = "sim" | "date" | "asc" | "dsc";
-
 export type ProductSearchParams = {
-  query: string;
-  display?: number;
-  start?: number;
-  sort?: ProductSort;
+  query?: string;
+  limit?: number;
+  skip?: number;
+};
+
+export type ProductDimensions = {
+  width: number;
+  height: number;
+  depth: number;
+};
+
+export type ProductReview = {
+  rating: number;
+  comment: string;
+  date: string;
+  reviewerName: string;
+  reviewerEmail: string;
+};
+
+export type ProductMeta = {
+  createdAt: string;
+  updatedAt: string;
+  barcode: string;
+  qrCode: string;
 };
 
 export type Product = {
-  id: string;
+  id: number;
   title: string;
-  image: string;
-  price: number;
-  mallName: string;
+  description: string;
   category: string;
-  link: string;
+  price: number;
+  discountPercentage: number;
+  rating: number;
+  stock: number;
+  tags: string[];
+  brand?: string;
+  sku: string;
+  weight: number;
+  dimensions: ProductDimensions;
+  warrantyInformation: string;
+  shippingInformation: string;
+  availabilityStatus: string;
+  reviews: ProductReview[];
+  returnPolicy: string;
+  minimumOrderQuantity: number;
+  meta: ProductMeta;
+  thumbnail: string;
+  images: string[];
 };
 
-export type ProductSearchResult = {
+export type ProductListResponse = {
+  products: Product[];
   total: number;
-  start: number;
-  display: number;
-  items: Product[];
-};
-
-export type NaverShopItem = {
-  title: string;
-  link: string;
-  image: string;
-  lprice: string;
-  hprice: string;
-  mallName: string;
-  productId: string;
-  productType: string;
-  brand: string;
-  maker: string;
-  category1: string;
-  category2: string;
-  category3: string;
-  category4: string;
-};
-
-export type NaverShopSearchResponse = {
-  lastBuildDate: string;
-  total: number;
-  start: number;
-  display: number;
-  items: NaverShopItem[];
-};
-
-export type NaverErrorResponse = {
-  errorMessage?: string;
-  errorCode?: string;
+  skip: number;
+  limit: number;
 };
