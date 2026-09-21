@@ -1,29 +1,28 @@
+import Link from "next/link";
+import Badge from "@/component/common/Badge/Badge";
 import type { Product } from "@/service/product/product.interface";
+import { formatPrice } from "../../../../utils/price";
 
 export default function ProductItem({ product }: { product: Product }) {
-  const price = new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD"
-  }).format(product.price);
-
   return (
     <li>
-      <article className="flex flex-col gap-4 border border-gray-300 rounded-xl p-4">
-        <div className="w-full h-40 bg-gray-200 rounded-xl">
-          <img
-            className="w-full h-full object-cover rounded-xl"
-            src={product.thumbnail}
-            alt={product.title}
-          />
-        </div>
-        <div>
-          <h2 className="text-lg font-bold line-clamp-2">{product.title}</h2>
-          <p className="text-sm text-gray-500">{price}</p>
-          {product.brand ? (
-            <p className="text-sm text-gray-500">{product.brand}</p>
+      <article className="flex h-full flex-col rounded-surface border border-border bg-surface p-6 shadow-surface">
+        <Link href={`/product/${product.id}`} className="block">
+          <div className="flex aspect-square items-center justify-center overflow-hidden rounded-surface bg-canvas">
+            <img
+              className="h-full w-full object-contain"
+              src={product.thumbnail}
+              alt={product.title}
+            />
+          </div>
+          {product.category ? (
+            <Badge className="mt-5">{product.category}</Badge>
           ) : null}
-          <p className="text-sm text-gray-500">{product.category}</p>
-        </div>
+          <h2 className="mt-3 line-clamp-2 text-body font-bold">
+            {product.title}
+          </h2>
+          <p className="mt-2 text-heading-6">{formatPrice(product.price)}</p>
+        </Link>
       </article>
     </li>
   );
