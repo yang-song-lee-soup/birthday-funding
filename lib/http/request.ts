@@ -15,7 +15,7 @@ export class HttpRequest<T> implements HttpRequestBuilder<T> {
 
     const response = await fetch(url, {
       method,
-      headers: this.mergeHeaders(headers),
+      headers: await this.resolveHeaders(headers),
       body: body === undefined ? undefined : JSON.stringify(body),
       cache,
       signal,
@@ -24,7 +24,7 @@ export class HttpRequest<T> implements HttpRequestBuilder<T> {
 
     await catchError(response);
 
-    return response.json() as Promise<T>;
+    return this.parseBody(response);
   }
 
   private buildUrl(path: string, query?: HttpQuery) {
@@ -41,15 +41,28 @@ export class HttpRequest<T> implements HttpRequestBuilder<T> {
     return url;
   }
 
-  private mergeHeaders(extra?: HeadersInit) {
+  private async resolveHeaders(extra?: HeadersInit) {
     const headers = new Headers(this.config.headers);
 
-    if (extra) {
-      new Headers(extra).forEach((value, key) => {
-        headers.set(key, value);
-      });
-    }
+    this.appendHeaders(headers, await this.config.getHeaders?.());
+    this.appendHeaders(headers, extra);
 
     return headers;
+  }
+
+  private appendHeaders(headers: Headers, extra?: HeadersInit) {
+    if (!extra) {
+      return;
+    }
+
+    new Headers(extra).forEach((value, key) => {
+      headers.set(key, value);
+    });
+  }
+
+  private async parseBody(response: Response): Promise<T> {
+    const text = await response.text();
+
+    return text ? (JSON.parse(text) as T) : (undefined as T);
   }
 }
