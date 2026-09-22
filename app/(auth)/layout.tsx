@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 
-import { getRequestUser } from "@/app/service/auth/server/auth.service";
+import { getRequestUser } from "@/service/auth/auth.server";
 
 /** 로그인 화면의 서버 진입 정책: 이미 인증된 요청자는 홈으로 이동시킨다. */
 export default async function AuthLayout({ children }: { children: React.ReactNode }) {
