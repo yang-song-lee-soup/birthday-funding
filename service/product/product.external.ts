@@ -7,23 +7,23 @@ export class ProductExternalAPI {
     private readonly httpClient: HttpClientInterface = createProductHttpClient()
   ) {}
 
-  async getAll(): Promise<ProductListDto> {
-    return this.httpClient.get<ProductListDto>("/products").request();
+  getAll() {
+    return this.httpClient.get<ProductListDto>("/products");
   }
 
-  async search(query: string): Promise<ProductListDto> {
-    return this.httpClient
-      .get<ProductListDto>("/products/search", { query: { q: query } })
-      .request();
+  search(query: string) {
+    return this.httpClient.get<ProductListDto>("/products/search", {
+      query: { q: query }
+    });
   }
 
-  async getByCategory(category: string): Promise<ProductListDto> {
-    return this.httpClient
-      .get<ProductListDto>(`/products/category/${category}`)
-      .request();
+  getByCategory(category: string) {
+    return this.httpClient.get<ProductListDto>(
+      `/products/category/${category}`
+    );
   }
 
-  async getById(id: number): Promise<ProductDto> {
-    return this.httpClient.get<ProductDto>(`/products/${id}`).request();
+  getById(id: number) {
+    return this.httpClient.get<ProductDto>(`/products/${id}`);
   }
 }

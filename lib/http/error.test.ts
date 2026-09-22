@@ -1,45 +1,51 @@
-import { describe, expect, it } from 'vitest';
-import { AppError } from '@/lib/app/app-error';
-import { catchError } from './error';
+import { describe, expect, it } from "vitest";
+import { AppError } from "@/lib/app/app-error";
+import { catchError } from "./error";
 
-describe('HTTP catchError', () => {
-    it('성공 응답은 통과시킨다', async () => {
-        await expect(catchError(new Response(null, { status: 200 }))).resolves.toBeUndefined();
-    });
+describe("HTTP catchError", () => {
+  it("성공 응답은 통과시킨다", () => {
+    expect(catchError(new Response(null, { status: 200 }))).toBeUndefined();
+  });
 
-    it('실패 응답의 에러 본문을 AppError로 던진다', async () => {
-        const response = new Response(
-            JSON.stringify({
-                service: 'product',
-                error: 'NAVER_SHOP_FAILED',
-                status: 502,
-                message: '네이버 쇼핑 조회에 실패했습니다.',
-            }),
-            { status: 502, statusText: 'Bad Gateway' },
-        );
+  it("401은 UNAUTHORIZED로 던진다", () => {
+    expect(() =>
+      catchError(new Response(null, { status: 401, statusText: "Unauthorized" }))
+    ).toThrow(AppError);
+    expect(() =>
+      catchError(new Response(null, { status: 401, statusText: "Unauthorized" }))
+    ).toThrow(
+      expect.objectContaining({
+        service: "http",
+        error: "UNAUTHORIZED",
+        status: 401,
+        message: "Authentication required"
+      })
+    );
+  });
 
-        await expect(catchError(response)).rejects.toSatisfy((error: unknown) => {
-            expect(error).toBeInstanceOf(AppError);
-            expect(error).toMatchObject({
-                name: 'AppError',
-                service: 'product',
-                error: 'NAVER_SHOP_FAILED',
-                status: 502,
-                message: '네이버 쇼핑 조회에 실패했습니다.',
-            });
-            return true;
-        });
-    });
+  it("403은 FORBIDDEN으로 던진다", () => {
+    expect(() =>
+      catchError(new Response(null, { status: 403, statusText: "Forbidden" }))
+    ).toThrow(
+      expect.objectContaining({
+        service: "http",
+        error: "FORBIDDEN",
+        status: 403,
+        message: "Access denied"
+      })
+    );
+  });
 
-    it('본문이 없거나 JSON이 아니면 HTTP 기본 에러로 던진다', async () => {
-        const response = new Response('not-json', { status: 404, statusText: 'Not Found' });
-
-        await expect(catchError(response)).rejects.toMatchObject({
-            name: 'AppError',
-            service: 'http',
-            error: 'HTTP_ERROR',
-            status: 404,
-            message: 'Not Found',
-        });
-    });
+  it("그 외 실패는 statusText를 메시지로 던진다", () => {
+    expect(() =>
+      catchError(new Response(null, { status: 404, statusText: "Not Found" }))
+    ).toThrow(
+      expect.objectContaining({
+        service: "http",
+        error: "HTTP_ERROR",
+        status: 404,
+        message: "Not Found"
+      })
+    );
+  });
 });

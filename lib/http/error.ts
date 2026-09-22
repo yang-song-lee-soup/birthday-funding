@@ -1,6 +1,6 @@
 import { AppError } from "../app/app-error";
 
-export async function catchError(response: Response) {
+export function catchError(response: Response) {
   if (response.ok) {
     return;
   }

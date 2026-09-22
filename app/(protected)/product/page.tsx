@@ -1,10 +1,9 @@
-import { ProductExternalAPI } from "@/service/product/product.external";
 import ProductAdminShell from "./_component/product-admin-shell";
 import ProductCategories from "./_component/product-categories";
 import ProductErrorToast from "./_component/product-error-toast";
 import ProductList from "./_component/product-list";
 import ProductSearch from "./_component/product-search";
-import { ProductService } from "./product.service";
+import { ProductPageService } from "./product.page.service";
 
 export default async function ProductPage({
   searchParams
@@ -13,7 +12,8 @@ export default async function ProductPage({
   const query = typeof params.query === "string" ? params.query : "";
   const selectedCategory =
     typeof params.category === "string" ? params.category : "";
-  const productService = new ProductService(new ProductExternalAPI());
+  const productService = new ProductPageService();
+
   const [products, error] = query
     ? await productService.searchProducts(query)
     : selectedCategory

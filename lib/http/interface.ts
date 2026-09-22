@@ -1,3 +1,4 @@
+import { ServiceResult } from "../app/app-result";
 import type { HttpService } from "./service";
 
 export type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
@@ -32,6 +33,9 @@ export type HttpRequestConfig = {
 
 export interface HttpRequestBuilder<T> {
   request(): Promise<T>;
+  requestWithResult(): Promise<ServiceResult<T>>;
+  setHeaders(headers: HeadersInit): HttpRequestBuilder<T>;
+  setOptions(options: HttpRequestOptions): HttpRequestBuilder<T>;
 }
 
 export interface HttpClientInterface {

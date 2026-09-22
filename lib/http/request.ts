@@ -1,16 +1,41 @@
+import { ServiceResult, toResult } from "../app/app-result";
 import { catchError } from "./error";
-import { HttpQuery, HttpRequestBuilder, HttpRequestConfig } from "./interface";
+import {
+  HttpQuery,
+  HttpRequestBuilder,
+  HttpRequestConfig,
+  HttpRequestOptions
+} from "./interface";
 
 export class HttpRequest<T> implements HttpRequestBuilder<T> {
   constructor(private readonly config: HttpRequestConfig) {}
 
-  async request(): Promise<T> {
+  request(): Promise<T> {
     return this.execute();
   }
 
+  requestWithResult(): Promise<ServiceResult<T>> {
+    return toResult(this.request());
+  }
+
+  setHeaders(headers: HeadersInit) {
+    this.config.headers = headers;
+
+    return this;
+  }
+
+  setOptions(options: HttpRequestOptions) {
+    this.config.options = {
+      ...this.config.options,
+      ...options
+    };
+
+    return this;
+  }
+
   private async execute(): Promise<T> {
-    const { method, path, body, options = {} } = this.config;
-    const { headers, query, cache, signal, next } = options;
+    const { method, path, body, options = {}, headers } = this.config;
+    const { query, cache, signal, next } = options;
     const url = this.buildUrl(path, query);
 
     const response = await fetch(url, {
@@ -22,7 +47,9 @@ export class HttpRequest<T> implements HttpRequestBuilder<T> {
       next
     });
 
-    await catchError(response);
+    console.log(response);
+
+    catchError(response);
 
     return this.parseBody(response);
   }
