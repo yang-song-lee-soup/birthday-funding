@@ -7,8 +7,8 @@ const { getProduct, showToastMessage } = vi.hoisted(() => ({
   getProduct: vi.fn(),
   showToastMessage: vi.fn()
 }));
-vi.mock("../product.service", () => ({
-  ProductService: class {
+vi.mock("../product.page.service", () => ({
+  ProductPageService: class {
     getProduct = getProduct;
   }
 }));
