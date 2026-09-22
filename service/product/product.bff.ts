@@ -7,11 +7,7 @@ export class ProductBffAPI {
     private readonly httpClient: HttpClientInterface = createAppHttpClient()
   ) {}
 
-  async getAll(): Promise<ProductListType> {
-    const { data } = await this.httpClient
-      .get<{ data: ProductListType }>("/api/product")
-      .request();
-
-    return data;
+  getAll() {
+    return this.httpClient.get<{ data: ProductListType }>("/api/product");
   }
 }

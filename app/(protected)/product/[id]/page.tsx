@@ -4,7 +4,7 @@ import Badge from "@/component/common/Badge/Badge";
 import { ProductExternalAPI } from "@/service/product/product.external";
 import ProductErrorToast from "../_component/product-error-toast";
 import { formatPrice } from "../../../../utils/price";
-import { ProductService } from "../product.service";
+import { ProductPageService } from "../product.page.service";
 
 export default async function ProductDetailPage({
   params
@@ -16,9 +16,9 @@ export default async function ProductDetailPage({
     notFound();
   }
 
-  const [product, error] = await new ProductService(
-    new ProductExternalAPI()
-  ).getProduct(productId);
+  const productService = new ProductPageService();
+
+  const [product, error] = await productService.getProduct(productId);
 
   if (error) {
     return <ProductErrorToast message={error.message} />;
@@ -46,7 +46,6 @@ export default async function ProductDetailPage({
           />
         </div>
         <div className="flex min-w-0 flex-1 flex-col">
-          {product.category ? <Badge>{product.category}</Badge> : null}
           <h1 className="mt-3 text-heading-4">{product.title}</h1>
           <p className="mt-3 text-heading-3">{formatPrice(product.price)}</p>
           <dl className="mt-10 space-y-4 text-body">

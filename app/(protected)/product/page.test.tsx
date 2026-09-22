@@ -10,8 +10,8 @@ const { getProducts, searchProducts, getProductsByCategory, showToastMessage } =
     getProductsByCategory: vi.fn(),
     showToastMessage: vi.fn()
   }));
-vi.mock("./product.service", () => ({
-  ProductService: class {
+vi.mock("./product.page.service", () => ({
+  ProductPageService: class {
     getProducts = getProducts;
     searchProducts = searchProducts;
     getProductsByCategory = getProductsByCategory;
