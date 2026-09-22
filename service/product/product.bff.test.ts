@@ -23,7 +23,7 @@ describe("상품 BFF API", () => {
       })
     );
 
-    const data = await new ProductBffAPI().getAll();
+    const { data } = await new ProductBffAPI().getAll().request();
 
     const url = fetchMock.mock.calls[0][0] as URL;
     expect(url.href).toBe("http://localhost:3000/api/product");

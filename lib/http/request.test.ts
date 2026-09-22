@@ -145,6 +145,50 @@ describe("HTTP 요청", () => {
     expect(headers.get("Content-Type")).toBe("application/json");
   });
 
+  it("setHeaders와 setOptions를 체이닝한다", async () => {
+    fetchMock.mockResolvedValue(jsonResponse({ ok: true }));
+    const client = HttpFetch({ service: HttpService.APP });
+
+    await client
+      .get("/me")
+      .setHeaders({ Authorization: "Bearer chained" })
+      .setOptions({ query: { tab: "profile" } })
+      .request();
+
+    const [url, init] = fetchMock.mock.calls[0] as [URL, RequestInit];
+    expect(url.href).toBe("http://localhost:3000/me?tab=profile");
+    expect(new Headers(init.headers).get("Authorization")).toBe(
+      "Bearer chained"
+    );
+  });
+
+  it("requestWithResult는 성공 튜플을 반환한다", async () => {
+    fetchMock.mockResolvedValue(jsonResponse({ id: 1 }));
+    const client = HttpFetch({ service: HttpService.APP });
+
+    const [data, error] = await client.get("/me").requestWithResult();
+
+    expect(data).toEqual({ id: 1 });
+    expect(error).toBeNull();
+  });
+
+  it("requestWithResult는 실패를 에러 튜플로 담는다", async () => {
+    fetchMock.mockResolvedValue(
+      jsonResponse({}, { status: 404, statusText: "Not Found" })
+    );
+    const client = HttpFetch({ service: HttpService.APP });
+
+    const [data, error] = await client.get("/missing").requestWithResult();
+
+    expect(data).toBeNull();
+    expect(error).toMatchObject({
+      service: "http",
+      error: "HTTP_ERROR",
+      status: 404,
+      message: "Not Found"
+    });
+  });
+
   it("실패 응답은 AppError로 던진다", async () => {
     fetchMock.mockImplementation(() =>
       jsonResponse(
