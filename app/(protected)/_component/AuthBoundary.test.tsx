@@ -9,7 +9,7 @@ vi.mock("@/providers/ToastMessageProvider", () => ({
   useToastMessageContext: () => ({ showToastMessage: mocks.toast }),
 }));
 import { AuthContext } from "@/providers/AuthProvider";
-import type { AuthContextValue } from "@/app/service/auth/auth.interface";
+import type { AuthContextValue } from "@/service/auth/auth.interface";
 import AuthBoundary from "./AuthBoundary";
 
 let host: HTMLDivElement;
