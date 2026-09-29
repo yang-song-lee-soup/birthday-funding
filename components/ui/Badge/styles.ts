@@ -1,4 +1,5 @@
 import type { BadgeColor, BadgeProps, BadgeSize } from "@/types/badge";
+import { cn } from "@/lib/utils";
 
 export const BASE_BADGE_STYLES =
   "inline-flex items-center justify-center rounded-full font-bold";
@@ -19,7 +20,5 @@ export function getBadgeClassName({
   size = "sm",
   className
 }: Pick<BadgeProps, "color" | "size" | "className">) {
-  return [BASE_BADGE_STYLES, BADGE_SIZE_STYLES[size], BADGE_COLOR_STYLES[color], className]
-    .filter(Boolean)
-    .join(" ");
+  return cn(BASE_BADGE_STYLES, BADGE_SIZE_STYLES[size], BADGE_COLOR_STYLES[color], className);
 }

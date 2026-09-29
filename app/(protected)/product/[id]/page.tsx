@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import Badge from "@/component/common/Badge/Badge";
+import Badge from "@/components/ui/Badge/Badge";
 import { ProductExternalAPI } from "@/service/product/product.external";
 import ProductErrorToast from "../_component/product-error-toast";
 import { formatPrice } from "../../../../utils/price";

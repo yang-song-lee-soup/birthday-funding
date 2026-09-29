@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import { Geist, Geist_Mono } from "next/font/google";
 import Providers from "@/providers";
-import ToastMessageContainer from "@/component/common/ToastMessage/ToastMessageContainer";
+import ToastMessageContainer from "@/components/ui/Toast/ToastMessageContainer";
 import "./globals.css";
 
 const geistSans = Geist({

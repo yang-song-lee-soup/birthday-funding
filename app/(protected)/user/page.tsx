@@ -1,6 +1,6 @@
 "use client";
 
-import BaseButton from "@/component/common/Button/BaseButton";
+import BaseButton from "@/components/ui/Button/BaseButton";
 import { useAuthContext } from "@/providers/AuthProvider";
 
 export default function UserPage() {
