@@ -1,6 +1,6 @@
 'use client';
 
-import IconButton from '@/component/common/Button/IconButton';
+import IconButton from '@/components/ui/Button/IconButton';
 import { useToastMessageContext } from '@/providers/ToastMessageProvider';
 import type { ToastMessageProps } from '@/types/toastMessage';
 

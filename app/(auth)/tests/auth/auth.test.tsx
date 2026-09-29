@@ -28,7 +28,7 @@ import ProtectedHeader from '@/app/(protected)/_component/layout/Header/Protecte
 import AuthProvider, { useAuthContext } from '@/providers/AuthProvider';
 import AuthBoundary from '@/app/(protected)/_component/AuthBoundary';
 import { ToastMessageProvider } from '@/providers/ToastMessageProvider';
-import ToastMessageContainer from '@/component/common/ToastMessage/ToastMessageContainer';
+import ToastMessageContainer from '@/components/ui/Toast/ToastMessageContainer';
 
 let host: HTMLDivElement;
 let root: Root;

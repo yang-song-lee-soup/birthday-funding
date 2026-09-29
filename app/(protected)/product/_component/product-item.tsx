@@ -1,5 +1,5 @@
 import Link from "next/link";
-import Badge from "@/component/common/Badge/Badge";
+import Badge from "@/components/ui/Badge/Badge";
 import type { Product } from "@/service/product/product.interface";
 import { formatPrice } from "../../../../utils/price";
 

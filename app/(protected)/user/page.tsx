@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 
-import BaseButton from "@/component/common/Button/BaseButton";
+import BaseButton from "@/components/ui/Button/BaseButton";
 import { useToastMessageContext } from "@/providers/ToastMessageProvider";
 
 type Friend = {
