@@ -1,4 +1,5 @@
 import type { BaseButtonProps, ButtonColor, ButtonSize, ButtonVariant } from '@/types/button';
+import { cn } from '@/lib/utils';
 
 export const BASE_BUTTON_STYLES = `
   inline-flex
@@ -66,14 +67,12 @@ export function getButtonClassName({
     isLoading,
     className,
 }: Pick<BaseButtonProps, 'size' | 'variant' | 'color' | 'isLoading' | 'className'>) {
-    return [
+    return cn(
         BASE_BUTTON_STYLES,
         variant === 'icon-round' ? 'rounded-full' : 'rounded-control',
         BUTTON_SIZE_STYLES[size ?? 'md'],
         color ? BUTTON_VARIANT_STYLES[variant ?? 'filled'][color] : '',
-        isLoading ? 'cursor-wait' : '',
-        className,
-    ]
-        .filter(Boolean)
-        .join(' ');
+        isLoading && 'cursor-wait',
+        className
+    );
 }

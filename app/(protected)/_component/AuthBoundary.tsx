@@ -2,7 +2,7 @@
 
 import { useEffect, type ReactNode } from "react";
 
-import BaseButton from "@/component/common/Button/BaseButton";
+import BaseButton from "@/components/ui/Button/BaseButton";
 import { useAuthContext } from "@/providers/AuthProvider";
 
 /**
