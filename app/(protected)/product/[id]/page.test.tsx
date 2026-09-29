@@ -74,6 +74,7 @@ describe("상품 상세 페이지", () => {
     expect(host.textContent).toContain("beauty");
     expect(host.textContent).toContain("5");
     expect(host.querySelector('a[href="/product"]')).not.toBeNull();
+    expect(host.textContent).toContain("상품 추가");
   });
 
   it("조회 실패는 토스트로 표시한다", async () => {
