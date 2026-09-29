@@ -1,6 +1,7 @@
 import type { User } from "@supabase/supabase-js";
 
-import type { ErrorResponse, ServiceResult } from "@/lib/app/app-error";
+import type { ErrorResponse } from "@/lib/app/app-error";
+import type { ServiceResult } from "@/lib/app/app-result";
 
 /** 클라이언트 인증 상태와 공통 인증 명령의 소비 계약. */
 export type AuthContextValue = {

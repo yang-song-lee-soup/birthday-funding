@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 
-import { getRequestUser } from '@/app/service/auth/server/auth.service';
+import { getRequestUser } from '@/service/auth/auth.server';
 import AuthBoundary from '@/app/(protected)/_component/AuthBoundary';
 import ProtectedHeader from '@/app/(protected)/_component/layout/Header/ProtectedHeader';
 

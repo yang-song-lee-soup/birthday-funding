@@ -1,30 +1,57 @@
+import { ServiceResult, toResult } from "../app/app-result";
 import { catchError } from "./error";
-import { HttpQuery, HttpRequestBuilder, HttpRequestConfig } from "./interface";
+import {
+  HttpQuery,
+  HttpRequestBuilder,
+  HttpRequestConfig,
+  HttpRequestOptions
+} from "./interface";
 
 export class HttpRequest<T> implements HttpRequestBuilder<T> {
   constructor(private readonly config: HttpRequestConfig) {}
 
-  async request(): Promise<T> {
+  request(): Promise<T> {
     return this.execute();
   }
 
+  requestWithResult(): Promise<ServiceResult<T>> {
+    return toResult(this.request());
+  }
+
+  setHeaders(headers: HeadersInit) {
+    this.config.headers = headers;
+
+    return this;
+  }
+
+  setOptions(options: HttpRequestOptions) {
+    this.config.options = {
+      ...this.config.options,
+      ...options
+    };
+
+    return this;
+  }
+
   private async execute(): Promise<T> {
-    const { method, path, body, options = {} } = this.config;
-    const { headers, query, cache, signal, next } = options;
+    const { method, path, body, options = {}, headers } = this.config;
+    const { query, cache, signal, next } = options;
     const url = this.buildUrl(path, query);
 
     const response = await fetch(url, {
       method,
-      headers: this.mergeHeaders(headers),
+      headers: await this.resolveHeaders(headers),
       body: body === undefined ? undefined : JSON.stringify(body),
       cache,
       signal,
       next
     });
 
-    await catchError(response);
+    console.log(response);
 
-    return response.json() as Promise<T>;
+    catchError(response);
+
+    return this.parseBody(response);
   }
 
   private buildUrl(path: string, query?: HttpQuery) {
@@ -41,15 +68,28 @@ export class HttpRequest<T> implements HttpRequestBuilder<T> {
     return url;
   }
 
-  private mergeHeaders(extra?: HeadersInit) {
+  private async resolveHeaders(extra?: HeadersInit) {
     const headers = new Headers(this.config.headers);
 
-    if (extra) {
-      new Headers(extra).forEach((value, key) => {
-        headers.set(key, value);
-      });
-    }
+    this.appendHeaders(headers, await this.config.getHeaders?.());
+    this.appendHeaders(headers, extra);
 
     return headers;
+  }
+
+  private appendHeaders(headers: Headers, extra?: HeadersInit) {
+    if (!extra) {
+      return;
+    }
+
+    new Headers(extra).forEach((value, key) => {
+      headers.set(key, value);
+    });
+  }
+
+  private async parseBody(response: Response): Promise<T> {
+    const text = await response.text();
+
+    return text ? (JSON.parse(text) as T) : (undefined as T);
   }
 }

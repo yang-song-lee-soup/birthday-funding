@@ -14,7 +14,7 @@ const mocks = vi.hoisted(() => ({
     replace: vi.fn(), refresh: vi.fn(), redirect: vi.fn((path: string) => { throw new Error(`redirect:${path}`); }),
 }));
 vi.mock('@/lib/supabase/client', () => ({ createClient: () => ({ auth: mocks }) }));
-vi.mock('@/app/service/auth/server/auth.service', () => ({ getRequestUser: mocks.getRequestUser }));
+vi.mock('@/service/auth/auth.server', () => ({ getRequestUser: mocks.getRequestUser }));
 vi.mock('next/navigation', () => ({
     useRouter: () => mocks,
     usePathname: () => window.location.pathname,

@@ -4,9 +4,9 @@ import type { User } from '@supabase/supabase-js';
 import { usePathname, useRouter } from 'next/navigation';
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 
-import type { AuthContextValue } from '@/app/service/auth/auth.interface';
-import { AuthService } from '@/app/service/auth/client/auth.service';
-import { getAuthProfile } from '@/app/service/auth/auth.util';
+import type { AuthContextValue } from '@/service/auth/auth.interface';
+import { AuthBrowserClient } from '@/service/auth/auth.client';
+import { getAuthProfile } from '@/service/auth/auth.util';
 import type { ErrorResponse } from '@/lib/app/app-error';
 import { useToastMessageContext } from './ToastMessageProvider';
 
@@ -35,7 +35,11 @@ export function useAuthContext(): AuthContextValue {
 export default function AuthProvider({ children }: AuthProviderProps) {
     const router = useRouter();
     const pathname = usePathname();
-    const authService = useMemo(() => new AuthService(), []);
+
+    const authClient = useMemo(
+        () => new AuthBrowserClient(),
+        [],
+    );
 
     const { showToastMessage } = useToastMessageContext();
 
@@ -47,7 +51,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
     // 최신 사용자 조회에 성공하면 Context를 갱신한다. 조회 실패는 기존 사용자와 함께 오류로 보관한다.
     const refetchUser = useCallback(async () => {
         setIsLoading(true);
-        const result = await authService.fetchCurrentUser();
+        const result = await authClient.fetchCurrentUser();
 
         const [currentUser, error] = result;
 
@@ -60,11 +64,11 @@ export default function AuthProvider({ children }: AuthProviderProps) {
 
         setIsLoading(false);
         return result;
-    }, [authService]);
+    }, [authClient]);
 
     useEffect(() => {
         let previousUserId: string | null = null;
-        const subscription = authService.onAuthStateChange((event, session) => {
+        const subscription = authClient.onAuthStateChange((event, session) => {
             const currentUserId = session?.user.id ?? null;
             const userChanged = currentUserId !== previousUserId;
             previousUserId = currentUserId;
@@ -82,7 +86,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
         });
 
         return () => subscription.unsubscribe();
-    }, [authService, router]);
+    }, [authClient, router]);
 
     // 클라이언트 뒤로가기로 로그인 화면에 돌아와도 인증된 유저는 홈으로 보낸다.
     useEffect(() => {
@@ -101,18 +105,18 @@ export default function AuthProvider({ children }: AuthProviderProps) {
 
     const signInWithKakao = useCallback(async () => {
         setIsLoading(true);
-        const result = await authService.signInWithKakao(`${window.location.origin}/api/auth/callback`);
+        const result = await authClient.signInWithKakao(`${window.location.origin}/api/auth/callback`);
         if (result[1]) {
             showToastMessage({ type: 'error', message: '카카오 로그인에 연결하지 못했습니다. 다시 시도해 주세요.' });
             setIsLoading(false);
         }
         // 성공 시 외부 OAuth 화면으로 이동한다. 뒤로가기 복원에서는 로딩을 해제한다.
         return result;
-    }, [authService, showToastMessage]);
+    }, [authClient, showToastMessage]);
 
     const signOut = useCallback(async () => {
         setIsLoading(true);
-        const result = await authService.signOut();
+        const result = await authClient.signOut();
         if (result[1]) {
             showToastMessage({ type: 'error', message: '로그아웃에 실패했습니다. 다시 시도해 주세요.' });
         } else {
@@ -126,7 +130,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
         setIsLoading(false);
 
         return result;
-    }, [authService, router, showToastMessage]);
+    }, [authClient, router, showToastMessage]);
 
     // 보호 영역의 비로그인 상태는 별도 안내 없이 이동하며 중복 이동을 방지한다.
     const handleUnauthenticated = useCallback(() => {

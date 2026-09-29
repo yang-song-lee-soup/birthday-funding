@@ -1,20 +1,13 @@
-import { extractError } from "@/lib/app/app-error";
-import { HttpFetch } from "@/lib/http";
-import { HttpService } from "@/lib/http/interface";
+import { ProductExternalAPI } from "@/service/product/product.external";
 import type { NextRequest } from "next/server";
 
 export async function GET(_request: NextRequest) {
-  try {
-    const client = HttpFetch({
-      service: HttpService.TEST
-    });
+  const client = new ProductExternalAPI();
+  const [data, error] = await client.getAll().requestWithResult();
 
-    const data = await client.get("/p1osts/1231").request();
-
-    return Response.json({ data });
-  } catch (e) {
-    const error = extractError(e);
-
-    return Response.json({ error }, { status: error.status });
+  if (error) {
+    return Response.json(error, { status: error.status });
   }
+
+  return Response.json({ data }, { status: 200 });
 }

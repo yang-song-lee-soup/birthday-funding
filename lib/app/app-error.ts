@@ -5,10 +5,6 @@ export type ErrorResponse = {
   message: string;
 };
 
-export type ServiceResult<T> =
-  | readonly [T, null]
-  | readonly [null, ErrorResponse];
-
 export class AppError extends Error {
   readonly service: string;
   readonly error: string;
