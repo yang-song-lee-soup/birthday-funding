@@ -1,10 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import ProductErrorToast from "../_component/product-error-toast";
-import { formatPrice } from "../../../../utils/price";
 import { ProductPageService } from "../product.page.service";
 import { getRequestUser } from "@/service/auth/auth.server";
 import FundingSubmitButton from "./_component/FundingSubmitButton";
+import { formatPrice } from "@/utils/price";
 
 export default async function ProductDetailPage({
   params

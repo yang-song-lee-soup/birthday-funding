@@ -1,6 +1,6 @@
 'use client';
 
-import BaseButton from '@/component/common/Button/BaseButton';
+import BaseButton from '@/components/ui/Button/BaseButton';
 
 type SignInProps = {
   isLoading: boolean;
