@@ -1,21 +1,23 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import Badge from "@/component/common/Badge/Badge";
-import { ProductExternalAPI } from "@/service/product/product.external";
 import ProductErrorToast from "../_component/product-error-toast";
 import { formatPrice } from "../../../../utils/price";
 import { ProductPageService } from "../product.page.service";
+import { getRequestUser } from "@/service/auth/auth.server";
+import FundingSubmitButton from "./_component/FundingSubmitButton";
 
 export default async function ProductDetailPage({
   params
 }: PageProps<"/product/[id]">) {
   const { id } = await params;
+
   const productId = Number(id);
 
   if (!Number.isInteger(productId) || productId <= 0) {
     notFound();
   }
 
+  const user = await getRequestUser();
   const productService = new ProductPageService();
 
   const [product, error] = await productService.getProduct(productId);
@@ -37,6 +39,7 @@ export default async function ProductDetailPage({
       >
         ←
       </Link>
+
       <div className="mt-8 flex flex-col gap-10 md:flex-row">
         <div className="flex aspect-square w-full items-center justify-center overflow-hidden rounded-surface bg-canvas md:w-lg">
           <img
@@ -67,6 +70,7 @@ export default async function ProductDetailPage({
           </p>
         </div>
       </div>
+      <FundingSubmitButton userId={user?.id} product={product} />
     </section>
   );
 }

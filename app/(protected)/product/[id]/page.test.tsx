@@ -3,14 +3,21 @@ import { act } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-const { getProduct, showToastMessage } = vi.hoisted(() => ({
+const { getProduct, getRequestUser, showToastMessage } = vi.hoisted(() => ({
   getProduct: vi.fn(),
+  getRequestUser: vi.fn(),
   showToastMessage: vi.fn()
 }));
 vi.mock("../product.page.service", () => ({
   ProductPageService: class {
     getProduct = getProduct;
   }
+}));
+vi.mock("@/service/auth/auth.server", () => ({
+  getRequestUser
+}));
+vi.mock("@/service/funding/funding.actions", () => ({
+  addFundingAction: vi.fn()
 }));
 vi.mock("@/providers/ToastMessageProvider", () => ({
   useToastMessageContext: () => ({ showToastMessage })
@@ -42,6 +49,8 @@ let host: HTMLDivElement;
 let root: Root;
 beforeEach(() => {
   getProduct.mockReset();
+  getRequestUser.mockReset();
+  getRequestUser.mockResolvedValue({ id: "user-1" });
   showToastMessage.mockReset();
   Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true });
   host = document.createElement("div");
