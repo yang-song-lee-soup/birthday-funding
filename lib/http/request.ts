@@ -47,8 +47,6 @@ export class HttpRequest<T> implements HttpRequestBuilder<T> {
       next
     });
 
-    console.log(response);
-
     catchError(response);
 
     return this.parseBody(response);

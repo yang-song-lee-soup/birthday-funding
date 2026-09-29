@@ -3,14 +3,21 @@ import { act } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-const { getProduct, showToastMessage } = vi.hoisted(() => ({
+const { getProduct, getRequestUser, showToastMessage } = vi.hoisted(() => ({
   getProduct: vi.fn(),
+  getRequestUser: vi.fn(),
   showToastMessage: vi.fn()
 }));
 vi.mock("../product.page.service", () => ({
   ProductPageService: class {
     getProduct = getProduct;
   }
+}));
+vi.mock("@/service/auth/auth.server", () => ({
+  getRequestUser
+}));
+vi.mock("@/service/funding/funding.actions", () => ({
+  addFundingAction: vi.fn()
 }));
 vi.mock("@/providers/ToastMessageProvider", () => ({
   useToastMessageContext: () => ({ showToastMessage })
@@ -42,6 +49,8 @@ let host: HTMLDivElement;
 let root: Root;
 beforeEach(() => {
   getProduct.mockReset();
+  getRequestUser.mockReset();
+  getRequestUser.mockResolvedValue({ id: "user-1" });
   showToastMessage.mockReset();
   Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true });
   host = document.createElement("div");
@@ -65,6 +74,7 @@ describe("상품 상세 페이지", () => {
     expect(host.textContent).toContain("beauty");
     expect(host.textContent).toContain("5");
     expect(host.querySelector('a[href="/product"]')).not.toBeNull();
+    expect(host.textContent).toContain("상품 추가");
   });
 
   it("조회 실패는 토스트로 표시한다", async () => {
