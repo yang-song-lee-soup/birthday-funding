@@ -31,7 +31,7 @@ beforeEach(() => {
   value = {
     user: null, userInfo: { displayName: "unknown" }, isLogin: false, isLoading: false,
     authError: null, refetchUser: vi.fn().mockResolvedValue([null, null]),
-    signInWithKakao: vi.fn(), signOut: vi.fn(),
+    signInWithKakao: vi.fn(), reconnectWithKakao: vi.fn(), completeKakaoReconnect: vi.fn(), signOut: vi.fn(),
     handleUnauthenticated: mocks.handleUnauthenticated,
   };
 });

@@ -1,9 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { NextRequest } from 'next/server';
 
-const { exchangeCodeForSession } = vi.hoisted(() => ({ exchangeCodeForSession: vi.fn() }));
+const { exchangeCodeForSession, signOut } = vi.hoisted(() => ({
+    exchangeCodeForSession: vi.fn(),
+    signOut: vi.fn(),
+}));
 vi.mock('@/lib/supabase/server', () => ({
-    createServerClient: async () => ({ auth: { exchangeCodeForSession } }),
+    createServerClient: async () => ({ auth: { exchangeCodeForSession, signOut } }),
 }));
 import { GET } from './route';
 
@@ -12,7 +15,10 @@ function request(params: Record<string, string>) {
 }
 
 describe('OAuth 콜백', () => {
-    beforeEach(() => { exchangeCodeForSession.mockReset().mockResolvedValue({ error: null }); });
+    beforeEach(() => {
+        exchangeCodeForSession.mockReset().mockResolvedValue({ error: null });
+        signOut.mockReset().mockResolvedValue({ error: null });
+    });
 
     it('인증 코드를 세션으로 교환하고 내부 이동 경로를 유지한다', async () => {
         const response = await GET(request({ code: 'valid', next: '/user?tab=profile#name' }));
@@ -42,5 +48,24 @@ describe('OAuth 콜백', () => {
     it('코드 교환 중 예외가 발생하면 로그인 화면으로 돌아간다', async () => {
         exchangeCodeForSession.mockRejectedValue(new Error('network'));
         expect((await GET(request({ code: 'valid' }))).headers.get('location')).toContain('error=oauth_callback_failed');
+    });
+
+    it('Kakao 재연결에 실패하면 기존 세션을 정리한다', async () => {
+        const response = await GET(request({
+            error: 'access_denied',
+            next: '/user?kakaoReconnect=attempted',
+        }));
+
+        expect(signOut).toHaveBeenCalledTimes(1);
+        expect(response.headers.get('location')).toBe('https://app.example/login?error=oauth_cancelled');
+    });
+
+    it('친구 상세에서 시작한 Kakao 재연결 실패도 기존 세션을 정리한다', async () => {
+        await GET(request({
+            error: 'access_denied',
+            next: '/user/friend-uuid?kakaoReconnect=attempted',
+        }));
+
+        expect(signOut).toHaveBeenCalledTimes(1);
     });
 });

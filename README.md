@@ -2,6 +2,16 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Getting Started
 
+Create `.env.local` and configure the server-only Kakao Admin key used to load
+consented friend birthday information:
+
+```bash
+KAKAO_ADMIN_KEY=your-kakao-admin-key
+```
+
+The Kakao Developers app must also enable the `friends` and `birthday` consent
+items. Never expose the Admin key through a `NEXT_PUBLIC_` environment variable.
+
 First, run the development server:
 
 ```bash

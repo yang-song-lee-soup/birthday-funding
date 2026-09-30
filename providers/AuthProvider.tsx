@@ -6,7 +6,12 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 
 import type { AuthContextValue } from '@/service/auth/auth.interface';
 import { AuthBrowserClient } from '@/service/auth/auth.client';
-import { getAuthProfile } from '@/service/auth/auth.util';
+import {
+    getAuthProfile,
+    getKakaoReconnectReturnPath,
+    getPathWithoutKakaoReconnect,
+    hasAttemptedKakaoReconnect,
+} from '@/service/auth/auth.util';
 import type { ErrorResponse } from '@/lib/app/app-error';
 import { useToastMessageContext } from './ToastMessageProvider';
 
@@ -103,18 +108,25 @@ export default function AuthProvider({ children }: AuthProviderProps) {
         return () => window.removeEventListener('pageshow', handlePageShow);
     }, [refetchUser]);
 
-    const signInWithKakao = useCallback(async () => {
+    const startKakaoOAuth = useCallback(async (next?: string) => {
         setIsLoading(true);
-        const result = await authClient.signInWithKakao(`${window.location.origin}/api/auth/callback`);
-        if (result[1]) {
-            showToastMessage({ type: 'error', message: '카카오 로그인에 연결하지 못했습니다. 다시 시도해 주세요.' });
-            setIsLoading(false);
-        }
+        const callbackUrl = new URL('/api/auth/callback', window.location.origin);
+        if (next) callbackUrl.searchParams.set('next', next);
+        const result = await authClient.signInWithKakao(callbackUrl.toString());
+        if (result[1]) setIsLoading(false);
         // 성공 시 외부 OAuth 화면으로 이동한다. 뒤로가기 복원에서는 로딩을 해제한다.
         return result;
-    }, [authClient, showToastMessage]);
+    }, [authClient]);
 
-    const signOut = useCallback(async () => {
+    const signInWithKakao = useCallback(async () => {
+        const result = await startKakaoOAuth();
+        if (result[1]) {
+            showToastMessage({ type: 'error', message: '카카오 로그인에 연결하지 못했습니다. 다시 시도해 주세요.' });
+        }
+        return result;
+    }, [showToastMessage, startKakaoOAuth]);
+
+    const signOut = useCallback(async ({ isSessionExpired = false }: { isSessionExpired?: boolean } = {}) => {
         setIsLoading(true);
         const result = await authClient.signOut();
         if (result[1]) {
@@ -122,7 +134,9 @@ export default function AuthProvider({ children }: AuthProviderProps) {
         } else {
             setUser(null);
             setAuthError(null);
-            showToastMessage({ type: 'success', message: '로그아웃 되었습니다.' });
+            showToastMessage(isSessionExpired
+                ? { type: 'warning', message: '인증 세션이 만료되었습니다. 다시 로그인해 주세요.' }
+                : { type: 'success', message: '로그아웃 되었습니다.' });
             redirected.current = true;
             router.replace('/login');
             router.refresh();
@@ -131,6 +145,31 @@ export default function AuthProvider({ children }: AuthProviderProps) {
 
         return result;
     }, [authClient, router, showToastMessage]);
+
+    const reconnectWithKakao = useCallback(async () => {
+        if (hasAttemptedKakaoReconnect(window.location.search)) {
+            return signOut({ isSessionExpired: true });
+        }
+
+        const returnPath = getKakaoReconnectReturnPath(
+            window.location.pathname,
+            window.location.search,
+        );
+        const result = await startKakaoOAuth(returnPath);
+        if (result[1]) await signOut({ isSessionExpired: true });
+        return result;
+    }, [signOut, startKakaoOAuth]);
+
+    const completeKakaoReconnect = useCallback(() => {
+        if (!hasAttemptedKakaoReconnect(window.location.search)) return;
+
+        const cleanPath = getPathWithoutKakaoReconnect(
+            window.location.pathname,
+            window.location.search,
+            window.location.hash,
+        );
+        window.history.replaceState(null, '', cleanPath);
+    }, []);
 
     // 보호 영역의 비로그인 상태는 별도 안내 없이 이동하며 중복 이동을 방지한다.
     const handleUnauthenticated = useCallback(() => {
@@ -150,9 +189,11 @@ export default function AuthProvider({ children }: AuthProviderProps) {
         authError,
         refetchUser,
         signInWithKakao,
+        reconnectWithKakao,
+        completeKakaoReconnect,
         signOut,
         handleUnauthenticated,
-    }), [authError, isLoading, refetchUser, signInWithKakao, signOut, handleUnauthenticated, user, userInfo]);
+    }), [authError, isLoading, refetchUser, signInWithKakao, reconnectWithKakao, completeKakaoReconnect, signOut, handleUnauthenticated, user, userInfo]);
 
     return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

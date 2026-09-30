@@ -41,6 +41,13 @@ function renderScreen(screen: ReactNode) {
         </StrictMode>,
     );
 }
+async function clickHeaderLogout() {
+    await act(async () => host.querySelector<HTMLButtonElement>('button[aria-label$="사용자 메뉴"]')!.click());
+    const logoutItem = Array.from(document.body.querySelectorAll<HTMLElement>('[role="menuitem"]'))
+        .find((item) => item.textContent === '로그아웃');
+    expect(logoutItem).toBeDefined();
+    await act(async () => logoutItem!.click());
+}
 beforeEach(() => {
     vi.clearAllMocks();
     mocks.onAuthStateChange.mockImplementation((handler) => {
@@ -150,7 +157,7 @@ describe('인증 화면과 접근 제어', () => {
             return { error: null };
         });
         await act(async () => renderScreen(<AuthBoundary><ProtectedHeader /></AuthBoundary>));
-        await act(async () => host.querySelector('button')!.click());
+        await clickHeaderLogout();
         expect(mocks.replace).toHaveBeenCalledExactlyOnceWith('/login');
         expect(host.querySelector('[role="status"]')?.textContent).toContain('로그아웃 되었습니다.');
         expect(host.textContent).not.toContain('다시 로그인해 주세요.');
@@ -168,7 +175,7 @@ describe('인증 화면과 접근 제어', () => {
         mocks.signInWithOAuth.mockResolvedValue({ error: null });
         await act(async () => renderScreen(<LoginPage />));
         await act(async () => host.querySelector('button')!.click());
-        expect(mocks.signInWithOAuth).toHaveBeenCalledWith({ provider: 'kakao', options: { redirectTo: `${window.location.origin}/api/auth/callback`, scopes: 'friends' } });
+        expect(mocks.signInWithOAuth).toHaveBeenCalledWith({ provider: 'kakao', options: { redirectTo: `${window.location.origin}/api/auth/callback`, scopes: 'friends birthday' } });
         expect(host.querySelector('button')!.disabled).toBe(true);
     });
 
@@ -282,7 +289,7 @@ describe('인증 화면과 접근 제어', () => {
     it('로그아웃에 성공하면 로그인 화면으로 이동하고 세션을 갱신한다', async () => {
         mocks.signOut.mockResolvedValue({ error: null });
         await act(async () => renderScreen(<ProtectedHeader />));
-        await act(async () => host.querySelector('button')!.click());
+        await clickHeaderLogout();
         expect(mocks.replace).toHaveBeenCalledWith('/login');
         expect(mocks.refresh).toHaveBeenCalled();
         expect(host.querySelector('[role="status"]')?.textContent).toContain('로그아웃 되었습니다.');
@@ -294,10 +301,63 @@ describe('인증 화면과 접근 제어', () => {
         expect(host.querySelectorAll('button[aria-label="알림 닫기"]')).toHaveLength(0);
     });
 
+    it('Kakao 재연결은 전용 복귀 경로로 OAuth를 한 번 요청한다', async () => {
+        window.history.replaceState(null, '', '/user/friend-uuid?tab=birthday');
+        mocks.signInWithOAuth.mockResolvedValue({ error: null });
+        function Probe() {
+            const { reconnectWithKakao } = useAuthContext();
+            return <button onClick={() => void reconnectWithKakao()}>reconnect</button>;
+        }
+
+        await act(async () => renderScreen(<Probe />));
+        await act(async () => host.querySelector('button')!.click());
+
+        expect(mocks.signInWithOAuth).toHaveBeenCalledWith({
+            provider: 'kakao',
+            options: {
+                redirectTo: `${window.location.origin}/api/auth/callback?next=%2Fuser%2Ffriend-uuid%3Ftab%3Dbirthday%26kakaoReconnect%3Dattempted`,
+                scopes: 'friends birthday',
+            },
+        });
+        expect(mocks.signOut).not.toHaveBeenCalled();
+    });
+
+    it('Kakao API 성공을 확인하면 재연결 표식만 현재 URL에서 제거한다', async () => {
+        window.history.replaceState(null, '', '/user/friend-uuid?tab=birthday&kakaoReconnect=attempted#profile');
+        function Probe() {
+            const { completeKakaoReconnect } = useAuthContext();
+            return <button onClick={completeKakaoReconnect}>complete</button>;
+        }
+
+        await act(async () => renderScreen(<Probe />));
+        await act(async () => host.querySelector('button')!.click());
+
+        expect(window.location.pathname).toBe('/user/friend-uuid');
+        expect(window.location.search).toBe('?tab=birthday');
+        expect(window.location.hash).toBe('#profile');
+    });
+
+    it('이미 Kakao 재연결을 시도했다면 세션을 만료 처리하고 재로그인을 안내한다', async () => {
+        window.history.replaceState(null, '', '/user?kakaoReconnect=attempted');
+        mocks.signOut.mockResolvedValue({ error: null });
+        function Probe() {
+            const { reconnectWithKakao } = useAuthContext();
+            return <button onClick={() => void reconnectWithKakao()}>reconnect</button>;
+        }
+
+        await act(async () => renderScreen(<Probe />));
+        await act(async () => host.querySelector('button')!.click());
+
+        expect(host.querySelector('[role="status"]')?.textContent).toContain('인증 세션이 만료되었습니다. 다시 로그인해 주세요.');
+        expect(host.querySelector('[role="status"]')?.textContent).not.toContain('로그아웃 되었습니다.');
+        expect(mocks.signInWithOAuth).not.toHaveBeenCalled();
+        expect(mocks.replace).toHaveBeenCalledWith('/login');
+    });
+
     it('로그아웃에 실패하면 현재 화면에서 재시도를 허용한다', async () => {
         mocks.signOut.mockRejectedValue(new Error('network'));
         await act(async () => renderScreen(<ProtectedHeader />));
-        await act(async () => host.querySelector('button')!.click());
+        await clickHeaderLogout();
         expect(mocks.replace).not.toHaveBeenCalled();
         expect(host.querySelector('[role="alert"]')?.textContent).toContain('로그아웃에 실패했습니다');
         expect(host.querySelector('button')!.disabled).toBe(false);

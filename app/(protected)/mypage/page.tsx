@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 
+import { getButtonClassName } from "@/components/ui/Button/styles";
 import { useAuthContext } from "@/providers/AuthProvider";
 
 export default function MyPage() {
@@ -17,10 +18,18 @@ export default function MyPage() {
         </header>
         <section className="rounded-surface border border-border bg-surface p-6 shadow-surface">
           <p className="text-body-medium">마이페이지 기능을 준비하고 있습니다.</p>
-          <Link className="mt-5 inline-flex text-body-small underline underline-offset-4" href="/user">
-            친구 목록으로 돌아가기
-          </Link>
+          <div className="mt-5 flex flex-wrap items-center gap-4">
+            <Link className="inline-flex text-body-small underline underline-offset-4" href="/user">
+              친구 목록으로 돌아가기
+            </Link>
+          </div>
         </section>
+        <Link
+          href="/product"
+          className={getButtonClassName({ color: "primary" })}
+        >
+          상품 담기
+        </Link>
       </div>
     </main>
   );

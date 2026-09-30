@@ -55,7 +55,7 @@ export class AuthBrowserClient {
         provider: "kakao",
         options: {
           redirectTo,
-          scopes: "friends"
+          scopes: "friends birthday"
         }
       });
 

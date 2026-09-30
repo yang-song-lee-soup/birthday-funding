@@ -13,7 +13,9 @@ export type AuthContextValue = {
   authError: ErrorResponse | null;
   refetchUser: () => Promise<ServiceResult<User | null>>;
   signInWithKakao: () => Promise<ServiceResult<void>>;
-  signOut: () => Promise<ServiceResult<void>>;
+  reconnectWithKakao: () => Promise<ServiceResult<void>>;
+  completeKakaoReconnect: () => void;
+  signOut: (options?: { isSessionExpired?: boolean }) => Promise<ServiceResult<void>>;
   handleUnauthenticated: () => void;
 };
 

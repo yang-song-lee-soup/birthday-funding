@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 
 import { createServerClient } from "@/lib/supabase/server";
+import { isKakaoReconnectUrl } from "@/service/auth/auth.util";
 
 function getSafeNextUrl(next: string | null, requestUrl: string) {
   const fallback = new URL("/", requestUrl);
@@ -11,6 +12,15 @@ function getSafeNextUrl(next: string | null, requestUrl: string) {
     return destination.origin === fallback.origin ? destination : fallback;
   } catch {
     return fallback;
+  }
+}
+
+async function clearSessionAfterReconnectFailure() {
+  try {
+    const supabase = await createServerClient();
+    await supabase.auth.signOut();
+  } catch {
+    // The login page remains the safe fallback even if cookie cleanup fails.
   }
 }
 
@@ -32,6 +42,10 @@ export async function GET(request: NextRequest) {
     } catch {
       // 네트워크 예외도 코드 만료와 동일하게 로그인 화면에서 재시도하도록 안내한다.
     }
+  }
+
+  if (isKakaoReconnectUrl(next)) {
+    await clearSessionAfterReconnectFailure();
   }
 
   const loginUrl = new URL("/login", request.url);
